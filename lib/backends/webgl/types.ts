@@ -20,7 +20,6 @@ export interface WebGLOperator {
  * The layout is created by the TextureLayoutStrategy based on
  * the Tensor's dimensions and strides
  */
-
 export interface TextureLayout {
   width: number;
   height: number;
@@ -30,7 +29,7 @@ export interface TextureLayout {
   unpackedShape: ReadonlyArray<number>;
 }
 export interface TextureData extends TextureLayout {
-  dataType: Tensor.DataType;
+  tensor: Tensor;
   texture: WebGLTexture;
 }
 

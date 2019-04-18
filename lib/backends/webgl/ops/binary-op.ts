@@ -18,7 +18,7 @@ export class WebGLBinaryOp extends BinaryOp implements WebGLOperator {
     return inferenceHandler.run(this, inputs);
   }
   createProgramInfo(handler: WebGLInferenceHandler, inputs: Tensor[]): ProgramInfo {
-    const inputLayouts = inputs.map(t => handler.getOrCreateTextureLayout(t));
+    const inputLayouts = inputs.map(t => handler.createTextureLayout(t));
     const isBroadcast = !ShapeUtil.areEqual(inputs[0].dims, inputs[1].dims);
     if (isBroadcast) {
       const outputShape = BroadcastUtil.calcShape(inputs[0].dims, inputs[1].dims, false);
@@ -44,7 +44,7 @@ export class WebGLBinaryOp extends BinaryOp implements WebGLOperator {
       return {
         hasMain: false,
         inputLayouts,
-        outputLayout: handler.createBasicTextureLayout(outputShape),
+        outputLayout: handler.createTextureLayout(outputShape),
         shaderSource,
       };
     }
@@ -62,16 +62,16 @@ export class WebGLBinaryOp extends BinaryOp implements WebGLOperator {
     return {
       hasMain: true,
       inputLayouts,
-      outputLayout: handler.createBasicTextureLayout(inputs[0].dims),
+      outputLayout: handler.createTextureLayout(inputs[0].dims),
       shaderSource,
     };
   }
   createRunData(handler: WebGLInferenceHandler, programInfo: ProgramInfo, inputs: Tensor[]): RunData {
-    const inputTDs = inputs.map((t, i) => handler.getOrCreate(t, programInfo.inputLayouts[i]));
+    const inputTDs = inputs.map((t, i) => handler.createTextureData(t, programInfo.inputLayouts[i]));
     return {
       inputTextureDatas: inputTDs,
-      outputTextureData: handler.createTextureDataFromLayout(
-          programInfo.outputLayout, this.resultType ? this.resultType : inputs[0].type),
+      outputTextureData:
+          handler.createTextureData(this.resultType ? this.resultType : inputs[0].type, programInfo.outputLayout),
       uniformData: {}
     };
   }

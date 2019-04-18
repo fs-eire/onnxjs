@@ -11,7 +11,7 @@ export class WebGLBatchNormalization extends BatchNormalization {
     return inferenceHandler.run(this, inputs);
   }
   createProgramInfo(handler: WebGLInferenceHandler, inputs: Tensor[]): ProgramInfo {
-    const inputLayouts = inputs.map(t => handler.getOrCreateTextureLayout(t));
+    const inputLayouts = inputs.map(t => handler.createTextureLayout(t));
     const outputShape = inputs[0].dims.slice();
     const rank = outputShape.length;
     const scale = inputLayouts[1];
@@ -31,12 +31,12 @@ export class WebGLBatchNormalization extends BatchNormalization {
 
         return scale * ( (_A(indices) - mean) / sqrt(variance + float(${this.epsilon})) ) + b;
       }`;
-    return {hasMain: false, inputLayouts, outputLayout: handler.createBasicTextureLayout(outputShape), shaderSource};
+    return {hasMain: false, inputLayouts, outputLayout: handler.createTextureLayout(outputShape), shaderSource};
   }
   createRunData(handler: WebGLInferenceHandler, programInfo: ProgramInfo, inputs: Tensor[]): RunData {
-    const inputTDs = [handler.getOrCreate(inputs[0], programInfo.inputLayouts[0])];
-    inputs.slice(1).forEach(t => inputTDs.push(handler.getOrCreate(t)));
-    const outputTD = handler.createTextureDataFromLayout(programInfo.outputLayout, inputTDs[0].dataType);
+    const inputTDs = [handler.createTextureData(inputs[0], programInfo.inputLayouts[0])];
+    inputs.slice(1).forEach(t => inputTDs.push(handler.createTextureData(t)));
+    const outputTD = handler.createTextureData(inputTDs[0].tensor.type, programInfo.outputLayout);
     return {inputTextureDatas: inputTDs, outputTextureData: outputTD, uniformData: {}};
   }
 }

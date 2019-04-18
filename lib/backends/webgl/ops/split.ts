@@ -23,7 +23,7 @@ export class WebGLSplit extends Split {
     this.artifacts.forEach(artifact => {
       const rundata = this.createRunData(inferenceHandler, artifact.programInfo, inputs);
       inferenceHandler.programManager.run(artifact, rundata);
-      results.push(inferenceHandler.getTensor(rundata.outputTextureData));
+      results.push(rundata.outputTextureData.tensor);
     });
     return results;
   }
@@ -44,16 +44,16 @@ export class WebGLSplit extends Split {
       }`;
     return {
       hasMain: false,
-      inputLayouts: [inferenceHandler.getOrCreateTextureLayout(input)],
-      outputLayout: inferenceHandler.createBasicTextureLayout(outputShape),
+      inputLayouts: [inferenceHandler.createTextureLayout(input)],
+      outputLayout: inferenceHandler.createTextureLayout(outputShape),
       shaderSource,
     };
   }
   createRunData(inferenceHandler: WebGLInferenceHandler, programInfo: ProgramInfo, inputs: Tensor[]): RunData {
-    const inputTDs = [inferenceHandler.getOrCreate(inputs[0], programInfo.inputLayouts[0])];
+    const inputTDs = [inferenceHandler.createTextureData(inputs[0], programInfo.inputLayouts[0])];
     return {
       inputTextureDatas: inputTDs,
-      outputTextureData: inferenceHandler.createTextureDataFromLayout(programInfo.outputLayout, inputTDs[0].dataType),
+      outputTextureData: inferenceHandler.createTextureData(inputTDs[0].tensor.type, programInfo.outputLayout),
       uniformData: {}
     };
   }

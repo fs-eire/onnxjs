@@ -24,13 +24,13 @@ export class WebGLSoftmax extends Softmax {
     const runDatas = this.createRunDatas(inferenceHandler, this.artifacts.map(a => a.programInfo), inputs);
     runDatas.forEach((v, i) => inferenceHandler.programManager.run(this.artifacts[i], v));
     // return only the last output
-    return [inferenceHandler.getTensor(runDatas.pop()!.outputTextureData)];
+    return [runDatas[runDatas.length - 1].outputTextureData.tensor];
   }
   createSoftMaxProgramInfo(
       inferenceHandler: WebGLInferenceHandler, input: Tensor, N: number, D: number,
       maxElementPerLogicalRow: TextureLayout, normalizationPerLogicalRow: TextureLayout): ProgramInfo {
     const inputShape = input.dims.slice();
-    const inputLayout = inferenceHandler.createBasicTextureLayout(inputShape);
+    const inputLayout = inferenceHandler.createTextureLayout(inputShape);
     const outputShape = inputShape;
     const rank = outputShape.length;
     const textureWidth = inputLayout.width;
@@ -74,7 +74,7 @@ export class WebGLSoftmax extends Softmax {
     return {
       hasMain: false,
       inputLayouts: [inputLayout, maxElementPerLogicalRow, normalizationPerLogicalRow],
-      outputLayout: inferenceHandler.createBasicTextureLayout(outputShape),
+      outputLayout: inferenceHandler.createTextureLayout(outputShape),
       shaderSource,
     };
   }
@@ -85,7 +85,7 @@ export class WebGLSoftmax extends Softmax {
   createComputScaleProgramInfo(
       inferenceHandler: WebGLInferenceHandler, x: Tensor, N: number, D: number, maxElementPerLogicalRow: TextureLayout,
       outputShape: number[]): ProgramInfo {
-    const xlayout = inferenceHandler.createBasicTextureLayout(x.dims.slice());
+    const xlayout = inferenceHandler.createTextureLayout(x.dims.slice());
     const rank = outputShape.length;
     const textureWidth = xlayout.width;
     const textureHeight = xlayout.height;
@@ -130,7 +130,7 @@ export class WebGLSoftmax extends Softmax {
     return {
       hasMain: false,
       inputLayouts: [xlayout, maxElementPerLogicalRow],
-      outputLayout: inferenceHandler.createBasicTextureLayout(outputShape),
+      outputLayout: inferenceHandler.createTextureLayout(outputShape),
       shaderSource,
     };
   }
@@ -139,7 +139,7 @@ export class WebGLSoftmax extends Softmax {
    */
   createComputeMaxProgramInfo(
       inferenceHandler: WebGLInferenceHandler, x: Tensor, N: number, D: number, outputShape: number[]): ProgramInfo {
-    const xlayout = inferenceHandler.createBasicTextureLayout(x.dims.slice());
+    const xlayout = inferenceHandler.createTextureLayout(x.dims.slice());
     const rank = outputShape.length;
     const textureWidth = xlayout.width;
     const textureHeight = xlayout.height;
@@ -177,7 +177,7 @@ export class WebGLSoftmax extends Softmax {
     return {
       hasMain: false,
       inputLayouts: [xlayout],
-      outputLayout: inferenceHandler.createBasicTextureLayout(outputShape),
+      outputLayout: inferenceHandler.createTextureLayout(outputShape),
       shaderSource,
     };
   }
@@ -197,17 +197,17 @@ export class WebGLSoftmax extends Softmax {
   }
   createRunDatas(inferenceHandler: WebGLInferenceHandler, programInfos: ProgramInfo[], inputs: Tensor[]): RunData[] {
     const dataType = inputs[0].type;
-    const inputTD = inferenceHandler.getOrCreate(inputs[0], programInfos[0].inputLayouts[0]);
+    const inputTD = inferenceHandler.createTextureData(inputs[0], programInfos[0].inputLayouts[0]);
     const runDatas: RunData[] = [];
     runDatas.push({
       inputTextureDatas: [inputTD],
-      outputTextureData: inferenceHandler.createTextureDataFromLayout(programInfos[0].outputLayout, dataType),
+      outputTextureData: inferenceHandler.createTextureData(dataType, programInfos[0].outputLayout),
       uniformData: {}
     });
     for (let i = 1; i < programInfos.length; ++i) {
       runDatas.push({
         inputTextureDatas: [...runDatas[i - 1].inputTextureDatas, runDatas[i - 1].outputTextureData],
-        outputTextureData: inferenceHandler.createTextureDataFromLayout(programInfos[i].outputLayout, dataType),
+        outputTextureData: inferenceHandler.createTextureData(dataType, programInfos[i].outputLayout),
         uniformData: {}
       });
     }

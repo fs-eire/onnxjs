@@ -66,13 +66,13 @@ export class WebGLConcat extends Concat implements WebGLOperator {
       }`;
     return {
       hasMain: false,
-      inputLayouts: inputs.map(t => handler.getOrCreateTextureLayout(t)),
-      outputLayout: handler.createBasicTextureLayout(outputShape),
+      inputLayouts: inputs.map(t => handler.createTextureLayout(t)),
+      outputLayout: handler.createTextureLayout(outputShape),
       shaderSource,
     };
   }
   createRunData(handler: WebGLInferenceHandler, programInfo: ProgramInfo, inputs: Tensor[]): RunData {
-    const inputTDs = inputs.map((t, i) => handler.getOrCreate(t, programInfo.inputLayouts[i]));
+    const inputTDs = inputs.map((t, i) => handler.createTextureData(t, programInfo.inputLayouts[i]));
     const sizeInConcatAxis = new Array<number>(programInfo.inputLayouts.length);
     let previousSum = 0;
     for (let i = 0; i < programInfo.inputLayouts.length; ++i) {
@@ -82,7 +82,7 @@ export class WebGLConcat extends Concat implements WebGLOperator {
     const uniformData = {'sizeInConcatAxis': sizeInConcatAxis};
     return {
       inputTextureDatas: inputTDs,
-      outputTextureData: handler.createTextureDataFromLayout(programInfo.outputLayout, inputTDs[0].dataType),
+      outputTextureData: handler.createTextureData(inputTDs[0].tensor.type, programInfo.outputLayout),
       uniformData
     };
   }

@@ -23,16 +23,16 @@ export class WebGLClip extends Clip implements WebGLOperator {
       `;
     return {
       hasMain: true,
-      inputLayouts: [handler.getOrCreateTextureLayout(inputs[0])],
-      outputLayout: handler.createBasicTextureLayout(outputShape),
+      inputLayouts: [handler.createTextureLayout(inputs[0])],
+      outputLayout: handler.createTextureLayout(outputShape),
       shaderSource,
     };
   }
   createRunData(handler: WebGLInferenceHandler, programInfo: ProgramInfo, inputs: Tensor[]): RunData {
-    const inputTDs = [handler.getOrCreate(inputs[0], programInfo.inputLayouts[0])];
+    const inputTDs = [handler.createTextureData(inputs[0], programInfo.inputLayouts[0])];
     return {
       inputTextureDatas: inputTDs,
-      outputTextureData: handler.createTextureDataFromLayout(programInfo.outputLayout, inputTDs[0].dataType),
+      outputTextureData: handler.createTextureData(inputTDs[0].tensor.type, programInfo.outputLayout),
       uniformData: {}
     };
   }

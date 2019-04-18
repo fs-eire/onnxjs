@@ -14,7 +14,7 @@ export class WebGLPad extends Pad implements WebGLOperator {
   createProgramInfo(inferenceHandler: WebGLInferenceHandler, inputs: Tensor[]): ProgramInfo {
     const outputShape = ShapeUtil.padShape(inputs[0].dims.slice(), this.pads);
     const rank = outputShape.length;
-    const alayout = inferenceHandler.getOrCreateTextureLayout(inputs[0]);
+    const alayout = inferenceHandler.createTextureLayout(inputs[0]);
     const padFunction = getPadFunction('A', alayout, this.mode, this.pads, this.value);
     const shaderSource = `
       uniform sampler2D A;
@@ -25,15 +25,15 @@ export class WebGLPad extends Pad implements WebGLOperator {
     return {
       hasMain: false,
       inputLayouts: [alayout],
-      outputLayout: inferenceHandler.createBasicTextureLayout(outputShape),
+      outputLayout: inferenceHandler.createTextureLayout(outputShape),
       shaderSource,
     };
   }
   createRunData(inferenceHandler: WebGLInferenceHandler, programInfo: ProgramInfo, inputs: Tensor[]): RunData {
-    const inputTDs = [inferenceHandler.getOrCreate(inputs[0], programInfo.inputLayouts[0])];
+    const inputTDs = [inferenceHandler.createTextureData(inputs[0], programInfo.inputLayouts[0])];
     return {
       inputTextureDatas: inputTDs,
-      outputTextureData: inferenceHandler.createTextureDataFromLayout(programInfo.outputLayout, inputTDs[0].dataType),
+      outputTextureData: inferenceHandler.createTextureData(inputTDs[0].tensor.type, programInfo.outputLayout),
       uniformData: {}
     };
   }

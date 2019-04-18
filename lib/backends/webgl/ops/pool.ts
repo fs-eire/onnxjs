@@ -16,10 +16,10 @@ export class WebGLGlobalAveragePool extends GlobalAveragePool implements WebGLOp
         inferenceHandler, inputs, true, this.kernelShape, this.autoPad, this.strides, this.pads, this.countIncludePad);
   }
   createRunData(inferenceHandler: WebGLInferenceHandler, programInfo: ProgramInfo, inputs: Tensor[]): RunData {
-    const inputTDs = [inferenceHandler.getOrCreate(inputs[0], programInfo.inputLayouts[0])];
+    const inputTDs = [inferenceHandler.createTextureData(inputs[0], programInfo.inputLayouts[0])];
     return {
       inputTextureDatas: inputTDs,
-      outputTextureData: inferenceHandler.createTextureDataFromLayout(programInfo.outputLayout, inputTDs[0].dataType),
+      outputTextureData: inferenceHandler.createTextureData(inputTDs[0].tensor.type, programInfo.outputLayout),
       uniformData: {}
     };
   }
@@ -34,10 +34,10 @@ export class WebGLAveragePool extends AveragePool implements WebGLOperator {
         inferenceHandler, inputs, false, this.kernelShape, this.autoPad, this.strides, this.pads, this.countIncludePad);
   }
   createRunData(inferenceHandler: WebGLInferenceHandler, programInfo: ProgramInfo, inputs: Tensor[]): RunData {
-    const inputTDs = [inferenceHandler.getOrCreate(inputs[0], programInfo.inputLayouts[0])];
+    const inputTDs = [inferenceHandler.createTextureData(inputs[0], programInfo.inputLayouts[0])];
     return {
       inputTextureDatas: inputTDs,
-      outputTextureData: inferenceHandler.createTextureDataFromLayout(programInfo.outputLayout, inputTDs[0].dataType),
+      outputTextureData: inferenceHandler.createTextureData(inputTDs[0].tensor.type, programInfo.outputLayout),
       uniformData: {}
     };
   }
@@ -57,7 +57,7 @@ function createAveragePoolProgramInfo(
   } else {
     op2 += `value /= float(${kernelSize} - pad);`;
   }
-  const inputLayout = inferenceHandler.getOrCreateTextureLayout(inputs[0]);
+  const inputLayout = inferenceHandler.createTextureLayout(inputs[0]);
   const poolingCode = GeneratePoolingCode(inputLayout, kernelShape, pads, strides, op1, op2, '0.0');
   const shaderSource = `
       ${poolingCode}
@@ -65,7 +65,7 @@ function createAveragePoolProgramInfo(
   return {
     hasMain: false,
     inputLayouts: [inputLayout],
-    outputLayout: inferenceHandler.createBasicTextureLayout(outputShape),
+    outputLayout: inferenceHandler.createTextureLayout(outputShape),
     shaderSource,
   };
 }
@@ -79,10 +79,10 @@ export class WebGLGlobalMaxPool extends GlobalMaxPool implements WebGLOperator {
         inferenceHandler, inputs, true, this.kernelShape, this.autoPad, this.strides, this.pads);
   }
   createRunData(inferenceHandler: WebGLInferenceHandler, programInfo: ProgramInfo, inputs: Tensor[]): RunData {
-    const inputTDs = [inferenceHandler.getOrCreate(inputs[0])];
+    const inputTDs = [inferenceHandler.createTextureData(inputs[0])];
     return {
       inputTextureDatas: inputTDs,
-      outputTextureData: inferenceHandler.createTextureDataFromLayout(programInfo.outputLayout, inputTDs[0].dataType),
+      outputTextureData: inferenceHandler.createTextureData(inputTDs[0].tensor.type, programInfo.outputLayout),
       uniformData: {}
     };
   }
@@ -97,10 +97,10 @@ export class WebGLMaxPool extends MaxPool implements WebGLOperator {
         inferenceHandler, inputs, false, this.kernelShape, this.autoPad, this.strides, this.pads);
   }
   createRunData(inferenceHandler: WebGLInferenceHandler, programInfo: ProgramInfo, inputs: Tensor[]): RunData {
-    const inputTDs = [inferenceHandler.getOrCreate(inputs[0])];
+    const inputTDs = [inferenceHandler.createTextureData(inputs[0])];
     return {
       inputTextureDatas: inputTDs,
-      outputTextureData: inferenceHandler.createTextureDataFromLayout(programInfo.outputLayout, inputTDs[0].dataType),
+      outputTextureData: inferenceHandler.createTextureData(inputTDs[0].tensor.type, programInfo.outputLayout),
       uniformData: {}
     };
   }
@@ -116,7 +116,7 @@ function createMaxPoolProgramInfo(
               value = max(_X(x), value);
       `;
   const op2 = ``;
-  const inputLayout = inferenceHandler.createBasicTextureLayout(inputShape);
+  const inputLayout = inferenceHandler.createTextureLayout(inputShape);
   const poolingCode = GeneratePoolingCode(inputLayout, kernelShape, pads, strides, op1, op2, '-1e5');
   const shaderSource = `
     ${poolingCode}
@@ -124,7 +124,7 @@ function createMaxPoolProgramInfo(
   return {
     hasMain: false,
     inputLayouts: [inputLayout],
-    outputLayout: inferenceHandler.createBasicTextureLayout(outputShape),
+    outputLayout: inferenceHandler.createTextureLayout(outputShape),
     shaderSource,
   };
 }

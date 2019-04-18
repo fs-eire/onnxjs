@@ -16,7 +16,7 @@ export class WebGLUnaryOp extends UnaryOp implements WebGLOperator {
   }
   createProgramInfo(handler: WebGLInferenceHandler, inputs: Tensor[]): ProgramInfo {
     const outputShape = inputs[0].dims.slice();
-    const inputLayout = handler.getOrCreateTextureLayout(inputs[0]);
+    const inputLayout = handler.createTextureLayout(inputs[0]);
     const shaderSource = `
       uniform sampler2D A;
       ${this.glslFunc.body}
@@ -26,14 +26,14 @@ export class WebGLUnaryOp extends UnaryOp implements WebGLOperator {
         gl_FragColor = v;
       }
       `;
-    const outputLayout = handler.createBasicTextureLayout(outputShape);
+    const outputLayout = handler.createTextureLayout(outputShape);
     return {hasMain: true, inputLayouts: [inputLayout], outputLayout, shaderSource};
   }
   createRunData(handler: WebGLInferenceHandler, programInfo: ProgramInfo, inputs: Tensor[]): RunData {
-    const inputTDs = [handler.getOrCreate(inputs[0], programInfo.inputLayouts[0])];
+    const inputTDs = [handler.createTextureData(inputs[0], programInfo.inputLayouts[0])];
     return {
       inputTextureDatas: inputTDs,
-      outputTextureData: handler.createTextureDataFromLayout(programInfo.outputLayout, inputTDs[0].dataType),
+      outputTextureData: handler.createTextureData(inputTDs[0].tensor.type, programInfo.outputLayout),
       uniformData: {}
     };
   }

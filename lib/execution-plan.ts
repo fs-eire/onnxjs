@@ -111,12 +111,44 @@ export class ExecutionPlan {
           throw new Error('the size of output does not match model definition.');
         }
 
+        console.log(`#### ${thisOp.node.name} (${thisOp.node.opType})`);
+        inputTensors.forEach((input, i) => {
+          const ref = new Uint8Array(
+              (input.data as Float32Array).buffer, (input.data as Float32Array).byteOffset,
+              (input.data as Float32Array).byteLength);
+          let f = '';
+          for (let i = 0; i < Math.min(16, ref.length); i++) {
+            f += ('00' + ref[i].toString(16)).toUpperCase().substr(-2);
+          }
+          if (f.length > 16) {
+            f = f.substr(0, 16) + ' ' + f.substr(16);
+          }
+          console.log(`    #Input${i} ({${input.dims.join(',')}}) ${f}`);
+        });
+
         // fill value
         outputList.forEach((output, i) => {
           const j = thisOp.node.outputs[i];
           if (this._values[j]) {
             throw new Error(`output [${j}] already has value: op:${thisOp.node.name}`);
           }
+
+          //   ~Output0 1284 ({1,24,112,112}) [0x000002773CDEB080] 06DD81C1C83C56C2 91D235C299C348C2 ...
+          // tslint:disable-next-line: no-unused-expression-chai
+          output.data;
+
+          const ref = new Uint8Array(
+              (output.data as Float32Array).buffer, (output.data as Float32Array).byteOffset,
+              (output.data as Float32Array).byteLength);
+          let f = '';
+          for (let i = 0; i < Math.min(16, ref.length); i++) {
+            f += ('00' + ref[i].toString(16)).toUpperCase().substr(-2);
+          }
+          if (f.length > 16) {
+            f = f.substr(0, 16) + ' ' + f.substr(16);
+          }
+          console.log(`    ~Output${i} ({${output.dims.join(',')}}) ${f}`);
+
           this._values[j] = output;
         });
 

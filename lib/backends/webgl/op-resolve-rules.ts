@@ -8,7 +8,7 @@ import {WebGLBatchNormalization} from './ops/batch-normalization';
 import * as binaryOps from './ops/binary-op';
 import {WebGLClip} from './ops/clip';
 import {WebGLConcat} from './ops/concat';
-import {WebGLConv} from './ops/conv';
+import {WebGLConv} from './ops/conv_2';
 import {WebGLDropout} from './ops/dropout';
 import {WebGLElu} from './ops/elu';
 import {WebGLFlatten} from './ops/flatten';

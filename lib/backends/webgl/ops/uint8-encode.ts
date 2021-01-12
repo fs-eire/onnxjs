@@ -14,6 +14,7 @@ export class WebGLUint8Encode {
       width,
       height,
       channels: 4,
+      isPacked: false,
       shape: outputShape,
       strides: ShapeUtil.computeStrides(outputShape),
       unpackedShape: outputShape

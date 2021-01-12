@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license.
 
+import {ShapeUtil} from '../../util';
+
 import {GlslContext, GlslLib, GlslLibRoutine} from './glsl-definitions';
 
 /**
@@ -81,8 +83,9 @@ export class ShapeUtilsGlslLib extends GlslLib {
     const programInfo = this.context.programInfo;
     const result: {[name: string]: GlslLibRoutine} = {};
     this.context.programInfo.samplers.forEach((name, i) => {
-      const shape = programInfo.inputLayouts[i].shape;
-      const strides = programInfo.inputLayouts[i].strides;
+      const shape =
+          programInfo.isInputsPacked ? programInfo.inputLayouts[i].shape : programInfo.inputLayouts[i].unpackedShape;
+      const strides = ShapeUtil.computeStrides(shape);
       const rank = shape.length;
       let funcName = `indicesToOffset_${name}`;
       result[funcName] = new GlslLibRoutine(ShapeUtilsGlslLib.indexToOffsetSingle(funcName, rank, strides));

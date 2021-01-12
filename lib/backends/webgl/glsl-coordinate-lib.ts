@@ -100,13 +100,21 @@ export class CoordsGlslLib extends GlslLib {
       const layout = programInfo.inputLayouts[i];
       const shape = layout.shape;
       const rank = shape.length;
+      let width = layout.width;
+      let height = layout.height;
+      if (programInfo.isInputsPacked && !layout.isPacked) {
+        [width, height] = this.context.textureLayoutStrategy.computeTextureWH(layout.unpackedShape, {isPacked: true});
+      }
+      if (!programInfo.isInputsPacked && layout.isPacked) {
+        [width, height] = this.context.textureLayoutStrategy.computeTextureWH(layout.unpackedShape);
+      }
       let funcName = `_${name}`;
       result[funcName] = new GlslLibRoutine(
-          this.getValueFromSingle(name, rank, layout.width, layout.height, false),
+          this.getValueFromSingle(name, rank, width, height, false),
           [`shapeUtils.indicesToOffset${funcName}`, `coordinates.offsetToCoords`, `fragcolor.getColorAsFloat`]);
       funcName = funcName + '_T';
       result[funcName] = new GlslLibRoutine(
-          this.getValueFromSingle(name, rank, layout.width, layout.height, true),
+          this.getValueFromSingle(name, rank, width, height, true),
           [`shapeUtils.indicesToOffset${funcName}`, `coordinates.offsetToCoords`, `fragcolor.getColorAsFloat`]);
     });
     return result;

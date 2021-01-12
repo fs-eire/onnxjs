@@ -23,7 +23,7 @@ export class WebGLSplit extends Split {
 
     this.artifacts.forEach(artifact => {
       const rundata = this.createRunData(inferenceHandler, artifact.programInfo, inputs);
-      inferenceHandler.session.programManager.run(artifact, rundata);
+      inferenceHandler.runProgram(artifact, rundata);
       results.push(rundata.outputTextureData.tensor);
     });
     return results;

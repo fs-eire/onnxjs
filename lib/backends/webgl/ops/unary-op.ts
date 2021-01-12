@@ -27,8 +27,17 @@ export class WebGLUnaryOp extends UnaryOp implements WebGLOperator {
         ${glsl.output} = v;
       }
       `;
+    // const outputLayout = handler.createTextureLayoutFromShape(outputShape, 4, outputShape, {isPacked: true});
     const outputLayout = handler.createTextureLayoutFromShape(outputShape);
-    return {inputLayouts: [inputLayout], outputLayout, samplers: ['A'], shaderSource, hasMain: true};
+    return {
+      inputLayouts: [inputLayout],
+      outputLayout,
+      samplers: ['A'],
+      shaderSource,
+      hasMain: true,
+      // isInputsPacked: true,
+      // isOutputPacked: true
+    };
   }
   createRunData(handler: WebGLInferenceHandler, programInfo: ProgramInfo, inputs: Tensor[]): RunData {
     const inputTDs = [handler.getOrCreateTextureData(inputs[0], programInfo.inputLayouts[0])];

@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import {env} from '../../env';
+// import {flatten} from '../cpu/ops/flatten';
 
 import * as DataEncoders from './texture-data-encoder';
 import {DataEncoder, Encoder} from './texture-data-encoder';
@@ -103,7 +104,26 @@ export class WebGLContext {
   readTexture(
       texture: WebGLTexture, width: number, height: number, dataSize: number, dataType: Encoder.DataType,
       channels: number): Encoder.DataArrayType {
-    const gl = this.gl;
+    const gl = this.gl as WebGL2RenderingContext;
+    // if (this.version === 2) {
+    //   gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
+    //   gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+
+    //   const buffer = gl.createBuffer();
+    //   gl.bindBuffer(gl.PIXEL_PACK_BUFFER, buffer);
+    //   gl.bufferData(gl.PIXEL_PACK_BUFFER, 4 * 4 * width * height, gl.STREAM_READ);
+    //   gl.readPixels(0, 0, width, height, gl.RGBA, gl.FLOAT, 0);
+    //   gl.bindBuffer(gl.PIXEL_PACK_BUFFER, null);
+
+    //   gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
+    //   gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, null, 0)
+
+    //   const downloadTarget = new Float32Array(dataSize);
+    //   gl.bindBuffer(gl.PIXEL_PACK_BUFFER, buffer);
+    //   gl.getBufferSubData(gl.PIXEL_PACK_BUFFER, 0, downloadTarget);
+    //   gl.bindBuffer(gl.PIXEL_PACK_BUFFER, null);
+    //   return downloadTarget;
+    // } else {
     if (!channels) {
       channels = 1;
     }
@@ -122,6 +142,7 @@ export class WebGLContext {
     this.checkError();
     // unbind FB
     return encoder.decode(buffer, dataSize);
+    //}
   }
   isFramebufferReady(): boolean {
     // TODO: Implement logic to check if the framebuffer is ready

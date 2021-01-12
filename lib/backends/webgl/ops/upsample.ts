@@ -12,7 +12,10 @@ export class WebGLUpsample extends Upsample implements WebGLOperator {
     return inferenceHandler.run(this, inputs);
   }
   createProgramInfo(handler: WebGLInferenceHandler, inputs: Tensor[]): ProgramInfo {
-    const inputLayout = handler.getOrCreateTextureLayout(inputs[0]);
+    let inputLayout = handler.getOrCreateTextureLayout(inputs[0]);
+    if (inputLayout.isPacked) {
+      inputLayout = handler.createTextureLayoutFromShape(inputLayout.unpackedShape);
+    }
     const outputShape = inputs[0].dims.map((dim, i) => Math.floor(dim * this.scales[i]));
     const outputLayout = handler.createTextureLayoutFromShape(outputShape);
     const dim = outputShape.length;

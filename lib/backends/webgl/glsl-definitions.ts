@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license.
 
+import {TextureLayoutStrategy} from './texture-layout-strategy';
 import {ProgramInfo} from './types';
 import {WebGLContext} from './webgl-context';
 
@@ -20,7 +21,9 @@ export interface GlslPositionalFunction extends GlslFunction<FunctionType.Positi
 }
 
 export class GlslContext {
-  constructor(public glContext: WebGLContext, public programInfo: ProgramInfo) {}
+  constructor(
+      public glContext: WebGLContext, public programInfo: ProgramInfo,
+      public textureLayoutStrategy: TextureLayoutStrategy) {}
 }
 export abstract class GlslLib {
   constructor(public context: GlslContext) {}

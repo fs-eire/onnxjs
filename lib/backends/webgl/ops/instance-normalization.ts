@@ -19,7 +19,7 @@ export class WebGLInstanceNormalization extends InstanceNormalization {
     }
 
     const runDatas = this.createRunDatas(inferenceHandler, this.artifacts.map(a => a.programInfo), inputs);
-    runDatas.forEach((v, i) => inferenceHandler.session.programManager.run(this.artifacts[i], v));
+    runDatas.forEach((v, i) => inferenceHandler.runProgram(this.artifacts[i], v));
     return [runDatas[1].outputTextureData.tensor];
   }
 

@@ -103,8 +103,19 @@ export class ExecutionPlan {
 
           const result = op.run(inferenceHandler, inputTensors);
 
-          return result;
+          const a = result;
+          // const a = await result;
+          // a.forEach((i, k) => {
+          //   i.data;
+          //   // const data = i.data;
+          //   // console.log(`OUTPUT_${k}: [${Array.from(data as Float32Array)}]`);
+          // });
+          return a;
         });
+        // const sleep = (ms: number) => {
+        //   return new Promise(resolve => setTimeout(resolve, ms));
+        // };
+        // await sleep(100);
 
         // check output
         if (outputList.length !== thisOp.node.outputs.length) {

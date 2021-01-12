@@ -48,6 +48,7 @@ export class Tensor {
     if (this.cache === undefined) {
       const data = this.dataProvider!(this.dataId);
       if (data.length !== this.size) {
+        // console.log(Array.from(data as Float32Array));
         throw new Error(`Length of data provided by the Data Provider is inconsistent with the dims of this Tensor.`);
       }
       this.cache = data;

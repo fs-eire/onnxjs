@@ -373,6 +373,8 @@ class GraphImpl implements Graph, Graph.Transformer {
     this.removeAllIdentityNodes();
     this.removeAllDropoutNodes();
 
+    this.fuseConv();
+
     // apply initializer specific transform
     if (graphInitializer) {
       graphInitializer.transformGraph(this);
@@ -547,6 +549,19 @@ class GraphImpl implements Graph, Graph.Transformer {
         this.deleteNode(nodeIndex);
       }
       nodeIndex++;
+    }
+  }
+
+  fuseConv() {
+    for (const node of this._nodes) {
+      // weed out 'Identity' nodes so that no time is wasted in execution
+      if (node.opType === 'Conv') {
+        const next = this._allData[node.outputs[0]]._to;
+        if (next.length === 1 && this._nodes[next[0]].opType === 'Relu') {
+          node.attributes.set('__activation', 'string', 'relu');
+          this.deleteNode(next[0])
+        }
+      }
     }
   }
 }

@@ -5,6 +5,7 @@ import {GlslContext, GlslLib, GlslLibRoutineNode, TopologicalSortGlslRoutines} f
 import {replaceInlines} from './glsl-function-inliner';
 import {glslRegistry} from './glsl-registered-libs';
 import {getDefaultFragShaderMain, getFragShaderPreamble} from './glsl-source';
+import {TextureLayoutStrategy} from './texture-layout-strategy';
 import {ProgramInfo, VariableInfo} from './types';
 import {WebGLContext} from './webgl-context';
 
@@ -21,8 +22,8 @@ export class GlslPreprocessor {
   readonly libs: {[name: string]: GlslLib} = {};
   readonly glslLibRoutineDependencyGraph: {[routineName: string]: GlslLibRoutineNode} = {};
 
-  constructor(glContext: WebGLContext, programInfo: ProgramInfo) {
-    this.context = new GlslContext(glContext, programInfo);
+  constructor(glContext: WebGLContext, programInfo: ProgramInfo, textureLayoutStrategy: TextureLayoutStrategy) {
+    this.context = new GlslContext(glContext, programInfo, textureLayoutStrategy);
 
     // construct GlslLibs
     Object.keys(glslRegistry).forEach((name: string) => {

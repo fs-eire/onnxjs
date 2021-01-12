@@ -47,18 +47,6 @@ export class WebGLConv extends Conv {
         'Conv',
         `autpPad:${this.autoPad}, dilations:${this.dilations}, group:${this.group}, kernelShape:${
             this.kernelShape}, pads:${this.pads}, strides:${this.strides}`);
-
-    if (this.kernelShape[0] === 1 && this.kernelShape[1] === 1 && this.dilations[0] === 1 && this.dilations[0] === 1 &&
-        this.strides[0] === 1 && this.strides[1] === 1) {
-      // return this.conv2dByMatMul(input, filter, convInfo, bias, activation, preluActivationWeights);
-
-      // TODO : packed implementation
-
-      throw new Error('not implemented');
-    }
-
-
-
     const outputShape = WebGLConv.calcOutputShape(xshape, kshape, this.dilations, this.pads, this.strides);
     const im2colProgramInfo = this.createIm2ColProgramInfo(inferenceHandler, inputs, outputShape);
     const dotProductProgramInfo =
